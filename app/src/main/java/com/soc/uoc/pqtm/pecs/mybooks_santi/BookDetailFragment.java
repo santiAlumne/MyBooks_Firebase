@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 
-import com.soc.uoc.pqtm.pecs.mybooks_santi.model.Books;
+import com.soc.uoc.pqtm.pecs.mybooks_santi.model.BookContent;
 import com.soc.uoc.pqtm.pecs.mybooks_santi.utils.DownloadImageTask;
 
 import java.text.SimpleDateFormat;
@@ -28,12 +28,12 @@ public class BookDetailFragment extends Fragment {
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
-    public static final String ARG_ITEM_ID = "bookId";
+    public static final String ARG_ITEM_ID = "id";
 
     /**
      * The dummy content this fragment is presenting.
      */
-    private Books.BookItem mItem;
+    private BookContent.BookItem mItem;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -47,18 +47,22 @@ public class BookDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
 
-            // Load the dummy content specified by the fragment
-            // arguments. In a real-world scenario, use a Loader
-            // to load content from a content provider.
-            ArrayList<Books.BookItem> llista = (ArrayList<Books.BookItem>) getArguments().getSerializable("list");
 
 
-                mItem = llista.get(Integer.parseInt(getArguments().getString(ARG_ITEM_ID)));
-                Activity activity = this.getActivity();
-                CollapsingToolbarLayout appBarLayout = activity.findViewById(R.id.toolbar_layout);
-                if (appBarLayout != null) {
-                    appBarLayout.setTitle(mItem.getTitle());
-                }
+        //llegeix la posició del llibre
+        if (getArguments().containsKey(ARG_ITEM_ID)) {
+            int position = Integer.parseInt(getArguments().getString(ARG_ITEM_ID));
+            Activity activity = this.getActivity();
+            CollapsingToolbarLayout appBarLayout = activity.findViewById(R.id.toolbar_layout);
+            mItem = BookContent.getBooks().get(position);
+
+            if (appBarLayout != null) {
+                appBarLayout.setTitle(mItem.getTitle());
+            }
+
+        }
+
+
 
 
 

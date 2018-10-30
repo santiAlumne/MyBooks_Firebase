@@ -1,26 +1,68 @@
 package com.soc.uoc.pqtm.pecs.mybooks_santi.model;
 
+import com.facebook.stetho.Stetho;
+import com.orm.SugarApp;
+import com.orm.SugarRecord;
+import com.orm.dsl.Column;
+import com.orm.dsl.Table;
+
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
-    public class Books implements Serializable{
+public class BookContent extends SugarApp {
+
+    public void onCreate(){
+
+        super.onCreate();
+        Stetho.initializeWithDefaults(this);
+    }
 
 
-    public Books(){
+
+    public static List<BookItem> getBooks(){
+        return BookItem.listAll(BookItem.class);
+
+    }
+    // Si el titol es troba a
+    public static boolean exists(BookItem bookItem){
+        List<BookItem> llista=getBooks();
+
+
+        if(llista.size()>0){
+            List <BookItem> books= BookItem.<BookItem>find(BookItem.class, "title = ?", bookItem.getTitle());
+            if(!books.isEmpty()){
+                return true;
+            }else return false;
+
+        }else{
+            return false;
+        }
 
     }
 
 
-     public static class BookItem implements Serializable {
+    public BookContent(){
 
-        private Integer bookId;
+    }
+    @Table(name="book")
+
+    public static class BookItem extends SugarRecord  {
+
+        @Column(name="_id")
+        private Long _id;
+        @Column(name="title")
         private String title;
+        @Column(name="author")
         private String author;
+        @Column(name="publication_date")
         private Date publication_date;
+        @Column(name="description")
         private String description;
+        @Column(name="url_image")
         private String url_image;
 
 
@@ -29,12 +71,14 @@ import java.util.Date;
 
         }
 
-        public BookItem(String bookId, String title, String author, String publication_date, String description, String url_image) {
+        //Crea objectes BookItem
+
+        public BookItem(String id, String title, String author, String publication_date, String description, String url_image) {
 
             try {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                 this.publication_date = dateFormat.parse(publication_date);
-                this.bookId =Integer.parseInt(bookId);
+                this._id =Long.parseLong(id);
                 this.title = title;
                 this.author = author;
                 this.description = description;
@@ -47,13 +91,7 @@ import java.util.Date;
 
         }
 
-        public Integer getBookId() {
-            return this.bookId;
-        }
 
-        public void setBookId(Integer bookId) {
-            this.bookId = bookId;
-        }
 
         public String getTitle() {
             return this.title;

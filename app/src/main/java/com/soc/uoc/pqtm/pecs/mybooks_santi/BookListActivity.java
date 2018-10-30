@@ -1,12 +1,12 @@
 package com.soc.uoc.pqtm.pecs.mybooks_santi;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -24,13 +24,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-import com.soc.uoc.pqtm.pecs.mybooks_santi.model.Books;
+import com.soc.uoc.pqtm.pecs.mybooks_santi.model.BookContent;
 
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 
 /**
@@ -51,9 +54,11 @@ public class BookListActivity extends AppCompatActivity {
     private boolean mTwoPane;
     private FirebaseDatabase database;
     private DatabaseReference myRef;
-    private static ArrayList<Books.BookItem> mValues;
+    private static ArrayList<BookContent.BookItem> mValues;
     private static FirebaseAuth mAuth;
+    private SimpleItemRecyclerViewAdapter adapter;
     private static final String TAG = BookListActivity.class.getSimpleName();
+    private SwipeRefreshLayout swipeContainer;
 
 
     @Override
@@ -61,6 +66,8 @@ public class BookListActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_list);
+
+
         mAuth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
         myRef = FirebaseDatabase.getInstance().getReference("books");
@@ -75,6 +82,55 @@ public class BookListActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Toast.makeText(getApplicationContext(), "Actualitza les dades!", Toast.LENGTH_LONG).show();
+                //recull la llista de llibres del servidor
+                myRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        //Coverteix el datashop
+                        GenericTypeIndicator<ArrayList<BookContent.BookItem>> t = new GenericTypeIndicator<ArrayList<BookContent.BookItem>>() {
+                        };
+                        mValues = dataSnapshot.getValue(t);
+                        Iterator<BookContent.BookItem> iterBooks = mValues.iterator();
+                        Long i = 0L;
+                        while (iterBooks.hasNext()) {
+                            iterBooks.next().setId(i);
+                            i++;
+                        }
+
+                        //afageix nous llibres
+                        for (BookContent.BookItem bookItem : mValues) {
+                            if (!BookContent.exists(bookItem)) {
+
+                                bookItem.save();
+                                adapter.notifyDataSetChanged();
+
+                            }
+                        }
+
+                        View recyclerView = findViewById(R.id.book_list);
+                        assert recyclerView != null;
+                        setupRecyclerView((RecyclerView) recyclerView);
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError error) {
+                        Toast.makeText(BookListActivity.this, "L'usuari no te accès a Internet, o el servidor no esta funcionant correctament",
+                                Toast.LENGTH_SHORT).show();
+
+                        //carrega la llista amb la base de dades del servidor
+                        adapter.setItems(BookContent.getBooks());
+                        Log.w(TAG, "Failed to read value.", error.toException());
+                    }
+                });
+                swipeContainer.setRefreshing(false);
+            }
+        });
         if (findViewById(R.id.book_detail_container) != null) {
             // The detail container view will be present only in the
             // large-screen layouts (res/values-w900dp).
@@ -83,26 +139,35 @@ public class BookListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
-         //Fa login amb el servidor
+        //Autentifica amb el servidor
         mAuth.signInWithEmailAndPassword("santiestudiantitic@gmail.com", "firebase")
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.d(TAG, "Funciona!!!!");
-
-                            //demana la llista al servidor
+                            Log.d(TAG, "success");
+                            //recull la llista de llibres
                             myRef.addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {
-                                    GenericTypeIndicator<ArrayList<Books.BookItem>> t = new GenericTypeIndicator<ArrayList<Books.BookItem>>() {
+
+                                    //Coverteix el datashop
+                                    GenericTypeIndicator<ArrayList<BookContent.BookItem>> t = new GenericTypeIndicator<ArrayList<BookContent.BookItem>>() {
                                     };
                                     mValues = dataSnapshot.getValue(t);
-                                    Iterator<Books.BookItem> iterBooks = mValues.iterator();
-                                    int i = 0;
+                                    Iterator<BookContent.BookItem> iterBooks = mValues.iterator();
+                                    Long i = 0L;
                                     while (iterBooks.hasNext()) {
-                                        iterBooks.next().setBookId(i);
+                                        iterBooks.next().setId(i);
                                         i++;
+                                    }
+
+                                    //afageix nous llibres
+                                    for (BookContent.BookItem bookItem : mValues) {
+                                        if (!BookContent.exists(bookItem)) {
+
+                                            bookItem.save();
+                                        }
                                     }
 
                                     View recyclerView = findViewById(R.id.book_list);
@@ -113,36 +178,51 @@ public class BookListActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onCancelled(DatabaseError error) {
-                                    // Failed to read value
+                                    Toast.makeText(BookListActivity.this, "L'usuari no te accès a Internet, o el servidor no esta funcionant correctament",
+                                            Toast.LENGTH_SHORT).show();
+
+                                    //carrega la llista amb la base de dades del servidor
+                                    adapter.setItems(BookContent.getBooks());
                                     Log.w(TAG, "Failed to read value.", error.toException());
                                 }
                             });
 
+
                         } else {
-                            Log.w(TAG, "No funciona", task.getException());
+                            Log.w(TAG, "failure", task.getException());
                         }
                     }
                 });
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, mValues, mTwoPane));
+        //recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, mValues, mTwoPane));
+        adapter = new SimpleItemRecyclerViewAdapter(this, mValues, mTwoPane);
+        //agafa la llista del servidor
+        adapter.setItems(BookContent.getBooks());
+
     }
+
 
     public static class SimpleItemRecyclerViewAdapter
             extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
 
-        private ArrayList<Books.BookItem> mValues;
+
+        private List<BookContent.BookItem> mValues;
         private final BookListActivity mContext;
         private boolean mTwoPane;
+
+
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
+
+            //Pasa la posició del llibre actual a la de detall
             public void onClick(View view) {
-                Books.BookItem item = (Books.BookItem) view.getTag();
+                BookContent.BookItem item = (BookContent.BookItem) view.getTag();
                 if (mTwoPane) {
                     Bundle arguments = new Bundle();
-                    arguments.putSerializable("list", mValues);
-                    arguments.putString(BookDetailFragment.ARG_ITEM_ID, String.valueOf(item.getBookId()));
+
+                    arguments.putString(BookDetailFragment.ARG_ITEM_ID, String.valueOf(item.getId()));
                     BookDetailFragment fragment = new BookDetailFragment();
                     fragment.setArguments(arguments);
                     mContext.getSupportFragmentManager().beginTransaction()
@@ -152,15 +232,14 @@ public class BookListActivity extends AppCompatActivity {
                     Context context = view.getContext();
                     Intent intent = new Intent(context, BookDetailActivity.class);
                     Bundle arguments = new Bundle();
-                    arguments.putSerializable("list", mValues);
                     intent.putExtras(arguments);
-                    intent.putExtra(BookDetailFragment.ARG_ITEM_ID, String.valueOf(item.getBookId()));
+                    intent.putExtra(BookDetailFragment.ARG_ITEM_ID, String.valueOf(item.getId()));
                     mContext.startActivity(intent);
                 }
             }
         };
 
-        public SimpleItemRecyclerViewAdapter(BookListActivity mContext, ArrayList<Books.BookItem> mValues, boolean mTwoPane) {
+        public SimpleItemRecyclerViewAdapter(BookListActivity mContext, ArrayList<BookContent.BookItem> mValues, boolean mTwoPane) {
             this.mContext = mContext;
             this.mValues = mValues;
             this.mTwoPane = mTwoPane;
@@ -196,7 +275,7 @@ public class BookListActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onBindViewHolder(SimpleItemRecyclerViewAdapter.ViewHolder holder, final int position) {
+        public void onBindViewHolder(final SimpleItemRecyclerViewAdapter.ViewHolder holder, final int position) {
 
             holder.mTitleView.setText(String.valueOf(mValues.get(position).getTitle()));
             holder.mAuthorView.setText(mValues.get(position).getAuthor());
@@ -217,6 +296,11 @@ public class BookListActivity extends AppCompatActivity {
                 mAuthorView = view.findViewById(R.id.detail_autor);
             }
 
+        }
+
+        //Metode que actualitza la llista de llibres rebudes del servidor
+        public void setItems(List<BookContent.BookItem> items) {
+            this.mValues = items;
         }
     }
 

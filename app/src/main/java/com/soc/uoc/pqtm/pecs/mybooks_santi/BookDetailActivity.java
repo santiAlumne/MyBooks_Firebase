@@ -11,9 +11,10 @@ import android.support.v7.app.ActionBar;
 import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
 
-import com.soc.uoc.pqtm.pecs.mybooks_santi.model.Books;
+import com.soc.uoc.pqtm.pecs.mybooks_santi.model.BookContent;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An activity representing a single book detail screen. This
@@ -62,8 +63,8 @@ public class BookDetailActivity extends AppCompatActivity {
             Bundle arguments = new Bundle();
             arguments.putString(BookDetailFragment.ARG_ITEM_ID,
                     getIntent().getStringExtra(BookDetailFragment.ARG_ITEM_ID));
-            ArrayList<Books.BookItem> llista = (ArrayList<Books.BookItem>) getIntent().getSerializableExtra("list");
-            arguments.putSerializable("list", llista);
+            List<BookContent.BookItem> llista = BookContent.getBooks();
+
             BookDetailFragment fragment = new BookDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction().add(R.id.book_detail_container, fragment).commit();
