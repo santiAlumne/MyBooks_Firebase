@@ -82,6 +82,7 @@ public class BookListActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+        swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
