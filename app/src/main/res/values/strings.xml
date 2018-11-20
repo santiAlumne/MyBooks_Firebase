@@ -1,4 +1,11 @@
 <resources>
     <string name="app_name">MyBooks_Santi</string>
     <string name="title_book_detail">book Detail</string>
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="fcm_message">FCM Message</string>
+    <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
+    <string name="notifications_admin_channel_name"> notifications_admin_channel_name</string>
+    <string name="notifications_admin_channel_description">notifications_admin_channel_description</string>
+
+
 </resources>

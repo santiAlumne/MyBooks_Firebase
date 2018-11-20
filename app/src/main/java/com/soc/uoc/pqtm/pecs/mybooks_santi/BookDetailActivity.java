@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import com.soc.uoc.pqtm.pecs.mybooks_santi.model.BookContent;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * An activity representing a single book detail screen. This
@@ -31,14 +30,7 @@ public class BookDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+
 
         // Show the Up button in the action bar.
 
@@ -61,13 +53,13 @@ public class BookDetailActivity extends AppCompatActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putString(BookDetailFragment.ARG_ITEM_ID,
-                    getIntent().getStringExtra(BookDetailFragment.ARG_ITEM_ID));
-            List<BookContent.BookItem> llista = BookContent.getBooks();
-
+            arguments.putInt(BookDetailFragment.ARG_ITEM_ID,
+                    getIntent().getIntExtra(BookDetailFragment.ARG_ITEM_ID, 0));
             BookDetailFragment fragment = new BookDetailFragment();
             fragment.setArguments(arguments);
-            getSupportFragmentManager().beginTransaction().add(R.id.book_detail_container, fragment).commit();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.book_detail_container, fragment)
+                    .commit();
         }
     }
 
@@ -84,7 +76,7 @@ public class BookDetailActivity extends AppCompatActivity {
             //
             // http://developer.android.com/design/patterns/navigation.html#up-vs-back
             //
-            NavUtils.navigateUpTo(this, new Intent(this, BookListActivity.class));
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);

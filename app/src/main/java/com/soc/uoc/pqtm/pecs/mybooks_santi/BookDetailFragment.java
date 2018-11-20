@@ -12,10 +12,10 @@ import android.widget.TextView;
 
 
 import com.soc.uoc.pqtm.pecs.mybooks_santi.model.BookContent;
-import com.soc.uoc.pqtm.pecs.mybooks_santi.utils.DownloadImageTask;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import com.squareup.picasso.Picasso;
+
+
 
 /**
  * A fragment representing a single book detail screen.
@@ -28,12 +28,15 @@ public class BookDetailFragment extends Fragment {
      * The fragment argument representing the item ID that this fragment
      * represents.
      */
-    public static final String ARG_ITEM_ID = "id";
+    public static final String ARG_ITEM_ID = "item_id";
 
     /**
      * The dummy content this fragment is presenting.
      */
     private BookContent.BookItem mItem;
+
+    private ImageView imageHeader;
+    private Activity activity;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -46,47 +49,48 @@ public class BookDetailFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-
-
-        //llegeix la posició del llibre
         if (getArguments().containsKey(ARG_ITEM_ID)) {
-            int position = Integer.parseInt(getArguments().getString(ARG_ITEM_ID));
-            Activity activity = this.getActivity();
-            CollapsingToolbarLayout appBarLayout = activity.findViewById(R.id.toolbar_layout);
-            mItem = BookContent.getBooks().get(position);
 
-            if (appBarLayout != null) {
-                appBarLayout.setTitle(mItem.getTitle());
-            }
+            // ============ INICI CODI A COMPLETAR ===============
+            mItem = BookContent.getBooks().get(getArguments().getInt(ARG_ITEM_ID));
+
+            activity = this.getActivity();
+
+
+
+            // ============ FI CODI A COMPLETAR ===============
 
         }
-
-
-
-
-
-
-
     }
 
-    // emplena la activitat detail
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         View rootView = inflater.inflate(R.layout.book_detail, container, false);
-        SimpleDateFormat dformat = new SimpleDateFormat("dd/mm/yyyy");
 
         // Show the dummy content as text in a TextView.
         if (mItem != null) {
-            new DownloadImageTask((ImageView) rootView.findViewById(R.id.detail_imatgeUrl)).execute(mItem.getUrl_image());
+            CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
 
+            if (appBarLayout != null) {
+                appBarLayout.setTitle(mItem.title);
+            }
+            ((TextView) rootView.findViewById(R.id.book_author)).setText(mItem.author);
+            ((TextView) rootView.findViewById(R.id.book_date)).setText(mItem.publicationDate);
+            ((TextView) rootView.findViewById(R.id.book_detail)).setText(mItem.description);
+            ImageView imageView1 = (ImageView) rootView.findViewById(R.id.book_image);
 
-            ((TextView) rootView.findViewById(R.id.detail_autor)).setText(mItem.getAuthor());
-            ((TextView) rootView.findViewById(R.id.detail_descripcio)).setText(mItem.getDescription());
-            ((TextView) rootView.findViewById(R.id.detail_datapublicacio)).setText(dformat.format(mItem.getPublication_date()));
+            imageHeader = (ImageView) activity.findViewById(R.id.image_header);
+            if (imageHeader != null) {
+                //Only Detail
+                imageView1.setVisibility(View.GONE);
+                Picasso.with(getActivity()).load(mItem.urlImage).into(imageHeader);
+            } else {
+                //When in landscape tablet (Two Panes)
+                Picasso.with(getActivity()).load(mItem.urlImage).into(imageView1);
+            }
         }
+
         return rootView;
     }
 }

@@ -1,58 +1,49 @@
-<?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/book_detail"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    tools:context="com.soc.uoc.pqtm.pecs.mybooks_santi.BookDetailFragment">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:weightSum="3">
+        <ImageView
+            android:id="@+id/book_image"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:scaleType="fitStart"
+            android:layout_weight="1"
+            android:src="@drawable/ha"/>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:padding="@dimen/text_margin">
+            <TextView
+                android:id="@+id/book_author"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:textSize="12dp"
+                android:textIsSelectable="true"
+                android:text="Author"/>
+            <TextView
+                android:id="@+id/book_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="11dp"
+                android:textIsSelectable="true"
+                android:text="15/01/1985"/>
+            <TextView
+                android:id="@+id/book_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12dp"
+                android:textIsSelectable="true"
+                android:text="Description"/>
+        </LinearLayout>
+    </LinearLayout>
 
-    <ImageView
-        android:id="@+id/detail_imatgeUrl"
-        android:layout_width="143dp"
-        android:layout_height="167dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
-        android:src="@android:drawable/screen_background_dark_transparent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/detail_autor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="40dp"
-        android:text="Autor"
-        app:layout_constraintStart_toEndOf="@+id/detail_imatgeUrl"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints" />
-
-    <TextView
-        android:id="@+id/detail_datapublicacio"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
-        android:text="Data"
-        app:layout_constraintStart_toEndOf="@+id/detail_imatgeUrl"
-        app:layout_constraintTop_toBottomOf="@+id/detail_autor" />
-
-    <TextView
-        android:id="@+id/detail_descripcio"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="24dp"
-        android:ellipsize="marquee"
-        android:text="Descripcio"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/detail_imatgeUrl"
-        app:layout_constraintTop_toBottomOf="@+id/detail_datapublicacio" />
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>
