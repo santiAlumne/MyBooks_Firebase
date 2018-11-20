@@ -21,11 +21,16 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Map;
 import java.util.Random;
 
+import static android.content.Intent.ACTION_DELETE;
+import static android.content.Intent.ACTION_VIEW;
+
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
     private NotificationManager notificationManager;
-    private String channelId;
+    private String NOTIFICATION_CHANNEL_ID;
+    private String BOOK;
+
 
     /**
      * Called when message is received.
@@ -33,7 +38,8 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      * @param remoteMessage Object representing the message received from Firebase Cloud Messaging.
      */
     // [START receive_message]
-    @Override public void onMessageReceived(RemoteMessage remoteMessage) {
+    @Override
+    public void onMessageReceived(RemoteMessage remoteMessage) {
 
         super.onMessageReceived(remoteMessage);
 
@@ -41,7 +47,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         Log.d(TAG, "From: " + remoteMessage.getFrom());
         // Check if message contains a data payload.
-        if (remoteMessage.getData().size() >0) {
+        if (remoteMessage.getData().size() > 0) {
             data = remoteMessage.getData();
             Log.d(TAG, "Message data payload: " + data);
 
@@ -50,15 +56,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
             String body = remoteMessage.getNotification().getBody();
+            String title = remoteMessage.getNotification().getTitle();
             Log.d(TAG, "Message Notification Body: " + body);
             showNotification(remoteMessage.getNotification().getTitle(), remoteMessage.getNotification().getBody());
             //send notification
-            sendNotification(body);
+            sendNotification(title, body, data);
         }
-
-
-
-        sendNotification(remoteMessage.getNotification().getBody());
 
 
     }
@@ -66,7 +69,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void showNotification(String title, String body) {
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        String NOTIFICATION_CHANNEL_ID="com.soc.uoc.pqtm.pecs.Mybooks_santi";
+        NOTIFICATION_CHANNEL_ID = "com.soc.uoc.pqtm.pecs.Mybooks_santi";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel notificationChannel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
                     "Notification",
@@ -78,7 +81,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notificationChannel.enableLights(true);
             notificationManager.createNotificationChannel(notificationChannel);
         }
-        NotificationCompat.Builder notificationBuilder=new NotificationCompat.Builder(this,NOTIFICATION_CHANNEL_ID);
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID);
         notificationBuilder.setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setWhen(System.currentTimeMillis())
@@ -86,7 +89,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentTitle(title)
                 .setContentText(body)
                 .setContentInfo("Info");
-        notificationManager.notify(new Random().nextInt(),notificationBuilder.build());
+        notificationManager.notify(new Random().nextInt(), notificationBuilder.build());
     }
 
 
@@ -108,7 +111,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // If you want to send messages to this application instance or
         // manage this apps subscriptions on the server side, send the
         // Instance ID token to your app server.
-        sendRegistrationToServer(token);
+        //sendRegistrationToServer(token);
     }
     // [END on_new_token]
 
@@ -135,49 +138,78 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     /**
      * Persist token to third-party servers.
-     *
+     * <p>
      * Modify this method to associate the user's FCM InstanceID token with any server-side account
      * maintained by your application.
      *
      * @param token The new token.
      */
-    private void sendRegistrationToServer(String token) {
+   /* private void sendRegistrationToServer(String token) {
         // TODO: Implement this method to send token to your app server.
     }
-
+*/
     /**
      * Create and show a simple notification containing the received FCM message.
      *
      * @param messageBody FCM message body received.
      */
-    private void sendNotification(String messageBody) {
-        Intent intent = new Intent(this, BookListActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
-                PendingIntent.FLAG_ONE_SHOT);
+    private void sendNotification(String messageTitle, String messageBody, Map<String, String> messageData) {
 
-        String NOTIFICATION_CHANNEL_ID="com.soc.uoc.pqtm.pecs.Mybooks_santi";
+        //pren la posició del llibre
+
+        String book = messageData.get("book");
+        if (book == null) {
+            Log.d(TAG, "Notification book not found");
+            return;
+        }
+        Log.d(TAG, " Notification book: " + book);
+
+        //les dues opcions:Eliminar de la llista local o veure detall
+        Intent intentDel = new Intent(this, BookListActivity.class);
+        Intent intentView = new Intent(this, BookListActivity.class);
+
+        intentDel.setAction(ACTION_DELETE);
+        intentDel.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intentDel.putExtra(BOOK, book);
+        PendingIntent delPendIntent = PendingIntent.getActivity(this, 0,
+                intentDel, PendingIntent.FLAG_ONE_SHOT);
+
+        intentView.setAction(ACTION_VIEW);
+        intentView.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intentView.putExtra(BOOK, book);
+        PendingIntent viewPendIntent = PendingIntent.getActivity(this, 0,
+                intentView, PendingIntent.FLAG_ONE_SHOT);
+
+        //defineix el channel
+        NOTIFICATION_CHANNEL_ID = "com.soc.uoc.pqtm.pecs.Mybooks_santi";
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder =
-                new NotificationCompat.Builder(this,NOTIFICATION_CHANNEL_ID)
+                new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                         .setSmallIcon(R.drawable.ic_stat_ic_notification)
                         .setContentTitle(getString(R.string.fcm_message))
                         .setContentText(messageBody)
+                        .setContentTitle(messageTitle)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
-                        .setContentIntent(pendingIntent);
-
+                        .addAction(new NotificationCompat.Action(
+                                R.drawable.ic_stat_ic_notification,
+                                "book  delete", delPendIntent))
+                        .addAction(new NotificationCompat.Action(
+                                R.drawable.ic_stat_ic_notification,
+                                "book View", viewPendIntent));
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        // Since Oreo Version
+        // Oreo version .
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(channelId,
+            NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
                     "Channel human readable title",
                     NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(channel);
         }
-
-        notificationManager.notify(0 , notificationBuilder.build());
+        //show notification
+        notificationManager.notify(0, notificationBuilder.build());
     }
+
+
 }
