@@ -74,6 +74,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     NotificationManager.IMPORTANCE_DEFAULT);
             notificationChannel.setDescription("Mybooks Channel");
             notificationChannel.enableLights(true);
+            notificationChannel.setSound(null, null);
             notificationChannel.setLightColor(Color.BLUE);
             notificationChannel.setVibrationPattern(new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400});
             notificationChannel.enableLights(true);
@@ -83,7 +84,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         notificationBuilder.setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setWhen(System.currentTimeMillis())
-                .setSmallIcon(R.drawable.ic_stat_ic_notification)
+                .setSmallIcon(R.drawable.ha)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setContentInfo("Info");
@@ -183,9 +184,11 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
-                        .setSmallIcon(R.drawable.ic_stat_ic_notification)
+                        .setSmallIcon(R.drawable.ha)
+                        .setVibrate(new long[]{1000, 1000, 1000, 1000, 1000})
                         .setContentTitle(getString(R.string.fcm_message))
                         .setContentText(messageBody)
+                        .setLights(Color.BLUE, 100, 1900)
                         .setContentTitle(messageTitle)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)

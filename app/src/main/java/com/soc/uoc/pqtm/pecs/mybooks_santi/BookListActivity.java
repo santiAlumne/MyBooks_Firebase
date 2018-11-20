@@ -129,6 +129,8 @@ public class BookListActivity extends AppCompatActivity  {
             Integer bookPosition = Integer.valueOf(getIntent().getStringExtra(BOOK));
             String book = getIntent().getStringExtra(BOOK);
 
+            //les duesopcions
+
             if (getIntent().getAction().equalsIgnoreCase(ACTION_DELETE)) {
 
                 Toast.makeText(BookListActivity.this, "Acció eliminar", Toast.LENGTH_SHORT).show();
