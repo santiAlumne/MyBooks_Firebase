@@ -155,10 +155,10 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      */
     private void sendNotification(String messageTitle, String messageBody, Map<String, String> messageData) {
 
-        //pren la posició del llibre
+
 
         String book = messageData.get("book");
-        if (book == null) {
+        if (book== null) {
             Log.d(TAG, "Notification book not found");
             return;
         }
@@ -207,7 +207,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     NotificationManager.IMPORTANCE_DEFAULT);
             notificationManager.createNotificationChannel(channel);
         }
-        //show notification
+        //mostra
         notificationManager.notify(0, notificationBuilder.build());
     }
 
