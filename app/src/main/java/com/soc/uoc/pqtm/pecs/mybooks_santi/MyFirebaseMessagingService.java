@@ -10,10 +10,8 @@ import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
@@ -157,12 +155,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         //pren la posició del llibre
 
-        String book = messageData.get("book");
-        if (book == null) {
+        String book_position = messageData.get("book_position");
+        if (book_position == null) {
             Log.d(TAG, "Notification book not found");
             return;
         }
-        Log.d(TAG, " Notification book: " + book);
+        Log.d(TAG, " Notification book: " + book_position);
 
         //les dues opcions:Eliminar de la llista local o veure detall
         Intent intentDel = new Intent(this, BookListActivity.class);
@@ -170,13 +168,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         intentDel.setAction(ACTION_DELETE);
         intentDel.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intentDel.putExtra(BOOK, book);
+        intentDel.putExtra(BOOK, book_position);
         PendingIntent delPendIntent = PendingIntent.getActivity(this, 0,
                 intentDel, PendingIntent.FLAG_ONE_SHOT);
 
         intentView.setAction(ACTION_VIEW);
         intentView.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        intentView.putExtra(BOOK, book);
+        intentView.putExtra(BOOK, book_position);
         PendingIntent viewPendIntent = PendingIntent.getActivity(this, 0,
                 intentView, PendingIntent.FLAG_ONE_SHOT);
 

@@ -1,15 +1,16 @@
 package com.soc.uoc.pqtm.pecs.mybooks_santi.model;
 
-import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
-import java.util.Date;
-import java.util.List;
-
 import com.orm.SugarRecord;
 
+import java.util.List;
+
 public class BookContent extends SugarRecord {
+    //eliminina
+    public static void delete(Integer bookPosition) {
+
+        BookItem book = BookItem.findById(BookItem.class, bookPosition);
+        book.delete();
+    }
 
     public static List<BookItem> getBooks(){
         // ============ INICI CODI A COMPLETAR ===============
@@ -20,11 +21,7 @@ public class BookContent extends SugarRecord {
     public static boolean exists(BookItem bookItem) {
         // ============ INICI CODI A COMPLETAR ===============
         List<BookItem> bookItem1 = BookItem.find(BookItem.class, "title = ?", bookItem.title);
-        if (bookItem1 == null || bookItem1.size() == 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return bookItem1 != null && bookItem1.size() != 0;
         // ============ FI CODI A COMPLETAR ===============
     }
 

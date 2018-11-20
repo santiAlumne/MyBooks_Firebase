@@ -1,20 +1,18 @@
 package com.soc.uoc.pqtm.pecs.mybooks_santi;
 
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.os.Build;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.NotificationManagerCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,15 +25,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-
 import com.orm.SugarContext;
 import com.soc.uoc.pqtm.pecs.mybooks_santi.adapters.MyAdapter;
 import com.soc.uoc.pqtm.pecs.mybooks_santi.model.BookContent;
 
-
-
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.content.Intent.ACTION_DELETE;
+import static android.content.Intent.ACTION_VIEW;
 
 /**
  * An activity representing a list of books. This activity
@@ -59,6 +57,7 @@ public class BookListActivity extends AppCompatActivity  {
     private  ArrayList<BookContent.BookItem> mValues;
     private static FirebaseAuth mAuth;
     private BookListActivity activity;
+    private static final String BOOK = "BOOK";
 
 
 
@@ -122,29 +121,61 @@ public class BookListActivity extends AppCompatActivity  {
         recyclerView.setAdapter(adapter);
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        //Servei en escolta
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (getIntent() != null && getIntent().getAction() != null) {
+            Integer bookPosition = Integer.valueOf(getIntent().getStringExtra(BOOK));
+            String book = getIntent().getStringExtra(BOOK);
 
+            if (getIntent().getAction().equalsIgnoreCase(ACTION_DELETE)) {
+
+                Toast.makeText(BookListActivity.this, "Acció eliminar", Toast.LENGTH_SHORT).show();
+                BookContent.delete(bookPosition);
+                adapter.setBooks(BookContent.getBooks());
+                listBooks();
+            } else if (getIntent().getAction().equalsIgnoreCase(ACTION_VIEW)) {
+                Toast.makeText(BookListActivity.this, "Acció Veure detall", Toast.LENGTH_SHORT).show();
+
+                if (mTwoPane) {
+
+                    Bundle arguments = new Bundle();
+                    arguments.putString(BookDetailFragment.ARG_ITEM_ID, book);
+                    BookDetailFragment fragment = new BookDetailFragment();
+                    fragment.setArguments(arguments);
+                    FragmentManager manager = getSupportFragmentManager();
+                    manager.beginTransaction()
+                            .replace(R.id.book_detail_container, fragment)
+                            .commit();
+                } else {
+
+                    intent = new Intent(getApplicationContext(), BookDetailActivity.class);
+                    intent.putExtra(BookDetailFragment.ARG_ITEM_ID, book);
+                    startActivity(intent);
+                }
+            }
+            notificationManager.cancelAll();
+        }
+
+
+    }
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_book_list);
-
-
-
         SugarContext.init(this);
-
-
         mAuth=FirebaseAuth.getInstance();
         database=FirebaseDatabase.getInstance();
         signIn();
-
-
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+
+
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
