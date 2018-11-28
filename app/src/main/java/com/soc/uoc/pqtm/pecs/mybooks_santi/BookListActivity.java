@@ -25,6 +25,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.orm.SugarContext;
 import com.soc.uoc.pqtm.pecs.mybooks_santi.adapters.MyAdapter;
 import com.soc.uoc.pqtm.pecs.mybooks_santi.model.BookContent;
@@ -175,6 +185,51 @@ public class BookListActivity extends AppCompatActivity  {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
+
+        //Items del menu
+        ProfileDrawerItem itemUsuari= new ProfileDrawerItem().withName("Nom usuari").withEmail("usari@email.com").withIcon(getResources().getDrawable(R.drawable.anonimo));
+
+        SecondaryDrawerItem itemShare = new SecondaryDrawerItem().withIdentifier(1).withName("Share to other Apps");
+        SecondaryDrawerItem itemCopy = new SecondaryDrawerItem().withIdentifier(2).withName("Copy to clipboard");
+        SecondaryDrawerItem itemShareWhatsapp = new SecondaryDrawerItem().withIdentifier(3).withName("Share in Whatsapp");
+
+        //Implementa el AccountHeader
+
+        AccountHeader headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+                //.withHeaderBackground(R.drawable.ic_launcher_background)
+                .addProfiles(
+                        itemUsuari
+                )
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
+                        return false;
+                    }
+                })
+                .build();
+
+        ////create the drawer and remember the `Drawer` result object
+        Drawer result = new DrawerBuilder()
+                .withAccountHeader(headerResult)
+                .withActivity(this)
+                .withToolbar(toolbar)
+                .addDrawerItems(
+                        itemShare,
+                        new DividerDrawerItem(),
+                        itemCopy,
+                        new DividerDrawerItem(),
+                        itemShareWhatsapp,
+                        new DividerDrawerItem()
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+
+                        return true;
+                    }
+                })
+                .build();
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
