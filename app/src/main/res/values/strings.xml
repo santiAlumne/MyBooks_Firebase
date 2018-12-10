@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">MyBooks_Santi</string>
+    <string name="title_book_detail">book Detail</string>
+    <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
+    <string name="fcm_message">FCM Message</string>
+    <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
+    <string name="notifications_admin_channel_name"> notifications_admin_channel_name</string>
+    <string name="notifications_admin_channel_description">notifications_admin_channel_description</string>
+    <string name="shareApps">Share to other Apps</string>
+    <string name="copyClipboard">Copy to clipboard</string>
+    <string name="shareWhatsapp">Share in WhatsApp</string>
+    <string name="AplicacioAndroidLlibres">Aplicació Android sobre llibres</string>
+    <string name="clipBoardSucces">El text es al portapapers</string>
+    <string name="error_ws_isnot_installed">WhatsApp no es instal-lat</string>
+
+
+</resources>

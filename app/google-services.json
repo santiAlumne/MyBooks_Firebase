@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "690807178285",
+    "firebase_url": "https://mybooks-santi.firebaseio.com",
+    "project_id": "mybooks-santi",
+    "storage_bucket": "mybooks-santi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:690807178285:android:ce231835002c9e2f",
+        "android_client_info": {
+          "package_name": "com.soc.uoc.pqtm.pecs.mybooks_santi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "690807178285-3ua4nf7ssr1ofh30nl86rpgee720222j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.soc.uoc.pqtm.pecs.mybooks_santi",
+            "certificate_hash": "c401fe3910930fbdafe238a7b6ff606966a70287"
+          }
+        },
+        {
+          "client_id": "690807178285-9qelktfrvcunvjmrt8if9a40rfa16o55.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSJnY9QjDxs732YUdCfzE0EGd_YHm9vac"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "690807178285-9qelktfrvcunvjmrt8if9a40rfa16o55.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
