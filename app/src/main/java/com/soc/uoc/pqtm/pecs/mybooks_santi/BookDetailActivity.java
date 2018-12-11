@@ -119,7 +119,8 @@ public class BookDetailActivity extends AppCompatActivity {
                 fab.setVisibility(View.VISIBLE);
 
             }else{
-                Snackbar.make(view, "Compra del llibre no realitzada", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(view, "Ha d’omplir la informació de\n" +
+                        "tots els camps", Snackbar.LENGTH_LONG).show();
 
                 view.reload();
             }
