@@ -1,6 +1,7 @@
 package com.soc.uoc.pqtm.pecs.mybooks_santi;
 
-import android.content.Intent;
+
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -8,8 +9,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
-import android.support.v4.app.NavUtils;
 import android.view.MenuItem;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import com.soc.uoc.pqtm.pecs.mybooks_santi.model.BookContent;
 
@@ -22,6 +24,10 @@ import java.util.ArrayList;
  * in a {@link BookListActivity}.
  */
 public class BookDetailActivity extends AppCompatActivity {
+    private WebView webView;
+    private FloatingActionButton fab;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,10 +35,22 @@ public class BookDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_book_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
+        webView=findViewById(R.id.web_view);
+        fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+              webView.setVisibility(View.VISIBLE);
+              webView.setWebViewClient(new Callback());
+              webView.loadUrl("file:///android_asset/form.html");
+              fab.setVisibility(View.GONE);
 
 
 
-        // Show the Up button in the action bar.
+            }
+        });
+
 
 
         ActionBar actionBar = getSupportActionBar();
@@ -80,5 +98,37 @@ public class BookDetailActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private class Callback extends WebViewClient {
+        private String name,num,date;
+
+        @Override
+        public boolean shouldOverrideUrlLoading (WebView view, String url){
+          //Valida els camps del formulari
+
+            Uri uri=Uri.parse(url);
+            name= uri.getQueryParameter("name");
+            num=uri.getQueryParameter("num");
+            date=uri.getQueryParameter("date");
+
+            if(name != "" && num !="" && date !="" ){
+                Snackbar.make(view, "Compra del llibre realitzada ", Snackbar.LENGTH_LONG).show();
+
+                view.setVisibility(View.INVISIBLE);
+                fab.setVisibility(View.VISIBLE);
+
+            }else{
+                Snackbar.make(view, "Compra del llibre no realitzada", Snackbar.LENGTH_LONG).show();
+
+                view.reload();
+            }
+
+           return true;
+
+
+
+        }
+
     }
 }
