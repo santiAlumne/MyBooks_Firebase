@@ -24,8 +24,7 @@ import java.util.ArrayList;
  * in a {@link BookListActivity}.
  */
 public class BookDetailActivity extends AppCompatActivity {
-    private WebView webView;
-    private FloatingActionButton fab;
+
 
 
 
@@ -35,21 +34,7 @@ public class BookDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_book_detail);
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
-        webView=findViewById(R.id.web_view);
-        fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
 
-              webView.setVisibility(View.VISIBLE);
-              webView.setWebViewClient(new Callback());
-              webView.loadUrl("file:///android_asset/form.html");
-              fab.setVisibility(View.GONE);
-
-
-
-            }
-        });
 
 
 
@@ -100,36 +85,5 @@ public class BookDetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private class Callback extends WebViewClient {
-        private String name,num,date;
 
-        @Override
-        public boolean shouldOverrideUrlLoading (WebView view, String url){
-          //Valida els camps del formulari
-
-            Uri uri=Uri.parse(url);
-            name= uri.getQueryParameter("name");
-            num=uri.getQueryParameter("num");
-            date=uri.getQueryParameter("date");
-
-            if(name != "" && num !="" && date !="" ){
-                Snackbar.make(view, "Compra del llibre realitzada ", Snackbar.LENGTH_LONG).show();
-
-                view.setVisibility(View.INVISIBLE);
-                fab.setVisibility(View.VISIBLE);
-
-            }else{
-                Snackbar.make(view, "Ha d’omplir la informació de\n" +
-                        "tots els camps", Snackbar.LENGTH_LONG).show();
-
-                view.reload();
-            }
-
-           return true;
-
-
-
-        }
-
-    }
 }

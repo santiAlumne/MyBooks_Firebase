@@ -71,7 +71,7 @@ public class BookListActivity extends AppCompatActivity  {
     private  ArrayList<BookContent.BookItem> mValues;
     private static FirebaseAuth mAuth;
     private BookListActivity activity;
-    private static final String BOOK = "BOOK";
+
 
 
 
@@ -135,48 +135,7 @@ public class BookListActivity extends AppCompatActivity  {
         recyclerView.setAdapter(adapter);
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        //Servei en escolta
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (getIntent() != null && getIntent().getAction() != null) {
-            Integer bookPosition = Integer.valueOf(getIntent().getStringExtra(BOOK));
-            String book = getIntent().getStringExtra(BOOK);
 
-            //les duesopcions
-
-            if (getIntent().getAction().equalsIgnoreCase(ACTION_DELETE)) {
-
-                Toast.makeText(BookListActivity.this, "Acció eliminar", Toast.LENGTH_SHORT).show();
-                BookContent.delete(bookPosition);
-                adapter.setBooks(BookContent.getBooks());
-                listBooks();
-            } else if (getIntent().getAction().equalsIgnoreCase(ACTION_VIEW)) {
-                Toast.makeText(BookListActivity.this, "Acció Veure detall", Toast.LENGTH_SHORT).show();
-
-
-                if (mTwoPane) {
-
-                    Bundle arguments = new Bundle();
-                    arguments.putString(BookDetailFragment.ARG_ITEM_ID, book);
-                    BookDetailFragment fragment = new BookDetailFragment();
-                    fragment.setArguments(arguments);
-                    FragmentManager manager = getSupportFragmentManager();
-                    manager.beginTransaction()
-                            .replace(R.id.book_detail_container, fragment)
-                            .commit();
-                } else {
-
-                    intent = new Intent(getApplicationContext(), BookDetailActivity.class);
-                    intent.putExtra(BookDetailFragment.ARG_ITEM_ID, book);
-                    startActivity(intent);
-                }
-            }
-            notificationManager.cancelAll();
-        }
-
-
-    }
 
 
     @Override
@@ -198,97 +157,7 @@ public class BookListActivity extends AppCompatActivity  {
             mTwoPane = true;
         }
 
-        //Items del menu
-        ProfileDrawerItem itemUsuari= new ProfileDrawerItem().withName("santi").withEmail("santi@email.com").withIcon(getResources().getDrawable(R.drawable.anonimo));
 
-        SecondaryDrawerItem itemShare = new SecondaryDrawerItem().withIdentifier(1).withName(R.string.shareApps);
-        SecondaryDrawerItem itemCopy = new SecondaryDrawerItem().withIdentifier(2).withName(R.string.copyClipboard);
-        SecondaryDrawerItem itemShareWhatsapp = new SecondaryDrawerItem().withIdentifier(3).withName(R.string.shareWhatsapp);
-
-        //Implementa el AccountHeader
-
-        AccountHeader headerResult = new AccountHeaderBuilder()
-                .withActivity(this)
-                //.withHeaderBackground(R.drawable.ic_launcher_background)
-                .addProfiles(
-                        itemUsuari
-                )
-                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-                    @Override
-                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
-                        return false;
-                    }
-                })
-                .build();
-
-        ////create the drawer and remember the `Drawer` result object
-        Drawer result = new DrawerBuilder()
-                .withAccountHeader(headerResult)
-                .withActivity(this)
-                .withToolbar(toolbar)
-                .addDrawerItems(
-                        itemShare,
-                        new DividerDrawerItem(),
-                        itemCopy,
-                        new DividerDrawerItem(),
-                        itemShareWhatsapp,
-                        new DividerDrawerItem()
-                )
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        switch((int)drawerItem.getIdentifier()){
-                            case 1: // Comparteix text e icone
-                                Uri imageUri = Uri.parse("android.resource://" + getPackageName()
-                                        + "/drawable/" + "myBooks");
-                                Intent shareIntent = new Intent();
-                                shareIntent.setAction(Intent.ACTION_SEND);
-                                shareIntent.putExtra(Intent.EXTRA_TEXT, R.string.AplicacioAndroidLlibres);
-                                shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
-                                shareIntent.setType("image/jpeg");
-                                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                startActivity(Intent.createChooser(shareIntent, "send"));
-                                break;
-
-                            case 2://copia el text al portapapers
-                                String label= getResources().getString(R.string.app_name);
-                                ClipboardManager clipboardManager=(ClipboardManager)getSystemService(Context.CLIPBOARD_SERVICE);
-                                clipboardManager.setPrimaryClip( ClipData.newPlainText(label,
-                                        getResources().getString(R.string.AplicacioAndroidLlibres)));
-                                //Mostra alerta que el text es al portapapers
-
-                                Toast.makeText(BookListActivity.this,getResources().getString(R.string.clipBoardSucces),Toast.LENGTH_LONG).show();
-                                break;
-
-                            case 3:
-
-                                imageUri = Uri.parse("android.resource://" + getPackageName()
-                                        + "/drawable/" + "myBooks");
-                                Intent whatsappIntent = new Intent();
-                                whatsappIntent.setAction(Intent.ACTION_SEND);
-
-                                whatsappIntent.putExtra(Intent.EXTRA_TEXT, R.string.AplicacioAndroidLlibres);
-                                whatsappIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
-                                whatsappIntent.setType("image/jpeg");
-                                whatsappIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                whatsappIntent.setPackage("com.whatsapp");
-                                try {
-                                    startActivity(whatsappIntent);
-
-                                }catch (ActivityNotFoundException e){ //Mostra
-                                    Log.e(TAG,e.getMessage());
-                                    Toast.makeText(BookListActivity.this, getString(R.string.error_ws_isnot_installed), Toast.LENGTH_SHORT).show();
-                                }
-                                break;
-
-
-
-                        }
-
-                        return true;
-                    }
-                })
-                .build();
 
 
         FloatingActionButton fab = findViewById(R.id.fab);
