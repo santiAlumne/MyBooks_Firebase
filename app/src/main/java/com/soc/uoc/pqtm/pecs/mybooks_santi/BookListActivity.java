@@ -191,43 +191,11 @@ public class BookListActivity extends AppCompatActivity  {
 
 
     }
-    private File createFile()throws IOException{
-        Bitmap bitmap=BitmapFactory.decodeResource(getResources(),R.drawable.mybooks);
-        final File sharedFolder=new File(getFilesDir(),"shared");
-        sharedFolder.mkdirs();
-
-            final File sharedFile=File.createTempFile("mybooks",".jpeg",sharedFolder);
-            sharedFile.createNewFile();
-            writeBitmap(sharedFile,bitmap);
 
 
 
-        return sharedFile;
-    }
 
-    private static void writeBitmap(final File destination, final Bitmap bitmap){
-        FileOutputStream outputStream=null;
-        try{
-            outputStream=new FileOutputStream(destination);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-            outputStream.flush();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally{
-            close(outputStream);
-        }
-    }
 
-    private static void close(final Closeable closeable){
-        if (closeable == null) return;
-        try {
-            closeable.close();
-        } catch (IOException ignored) {
-        }
-
-    }
 
 
 
@@ -327,7 +295,7 @@ public class BookListActivity extends AppCompatActivity  {
 
                                 final File sharedFile;
                                 try {
-                                    sharedFile = createFile();
+
                                     //Pren la Uri del fitxer compartit
                                     imageUri = Uri.parse("android.resource://" + getPackageName()
                                             + "/drawable/" + "mybooks");
@@ -346,7 +314,7 @@ public class BookListActivity extends AppCompatActivity  {
                                         Log.e(TAG,e.getMessage());
                                         Toast.makeText(BookListActivity.this, getString(R.string.error_ws_isnot_installed), Toast.LENGTH_SHORT).show();
                                     }
-                                } catch (IOException e) {
+                                } catch (Exception e) {
                                     e.printStackTrace();
                                 }
 
