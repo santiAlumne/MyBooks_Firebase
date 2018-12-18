@@ -6,18 +6,25 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.ShareCompat;
+import android.support.v4.app.ShareCompat.IntentBuilder;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -43,6 +50,12 @@ import com.orm.SugarContext;
 import com.soc.uoc.pqtm.pecs.mybooks_santi.adapters.MyAdapter;
 import com.soc.uoc.pqtm.pecs.mybooks_santi.model.BookContent;
 
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -72,6 +85,7 @@ public class BookListActivity extends AppCompatActivity  {
     private static FirebaseAuth mAuth;
     private BookListActivity activity;
     private static final String BOOK = "BOOK";
+    private static final String SHARED_PROVIDER_AUTHORITY = BuildConfig.APPLICATION_ID + ".provider";
 
 
 
@@ -177,6 +191,44 @@ public class BookListActivity extends AppCompatActivity  {
 
 
     }
+    private File createFile()throws IOException{
+        Bitmap bitmap=BitmapFactory.decodeResource(getResources(),R.drawable.mybooks);
+        final File sharedFolder=new File(getFilesDir(),"shared");
+        sharedFolder.mkdirs();
+
+            final File sharedFile=File.createTempFile("mybooks",".jpeg",sharedFolder);
+            sharedFile.createNewFile();
+            writeBitmap(sharedFile,bitmap);
+
+
+
+        return sharedFile;
+    }
+
+    private static void writeBitmap(final File destination, final Bitmap bitmap){
+        FileOutputStream outputStream=null;
+        try{
+            outputStream=new FileOutputStream(destination);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+            outputStream.flush();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally{
+            close(outputStream);
+        }
+    }
+
+    private static void close(final Closeable closeable){
+        if (closeable == null) return;
+        try {
+            closeable.close();
+        } catch (IOException ignored) {
+        }
+
+    }
+
 
 
     @Override
@@ -239,15 +291,26 @@ public class BookListActivity extends AppCompatActivity  {
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         switch((int)drawerItem.getIdentifier()){
                             case 1: // Comparteix text e icone
+
+                              // String text=getResources().getString(R.string.AplicacioAndroidLlibres);
+                                String text="Aplicacio android llibres";
+
+
                                 Uri imageUri = Uri.parse("android.resource://" + getPackageName()
-                                        + "/drawable/" + "myBooks");
-                                Intent shareIntent = new Intent();
-                                shareIntent.setAction(Intent.ACTION_SEND);
-                                shareIntent.putExtra(Intent.EXTRA_TEXT, R.string.AplicacioAndroidLlibres);
+                                        + "/drawable/" + "mybooks");
+                                Intent shareIntent=new Intent(Intent.ACTION_SEND);
+
+
+                                shareIntent.putExtra(Intent.EXTRA_TEXT, text);
+
                                 shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
-                                shareIntent.setType("image/jpeg");
+
+                                shareIntent.setType("image/*");
+
                                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                startActivity(Intent.createChooser(shareIntent, "send"));
+
+                                startActivity(Intent.createChooser(shareIntent, "Share images and text..."));
+
                                 break;
 
                             case 2://copia el text al portapapers
@@ -262,23 +325,31 @@ public class BookListActivity extends AppCompatActivity  {
 
                             case 3:
 
-                                imageUri = Uri.parse("android.resource://" + getPackageName()
-                                        + "/drawable/" + "myBooks");
-                                Intent whatsappIntent = new Intent();
-                                whatsappIntent.setAction(Intent.ACTION_SEND);
-
-                                whatsappIntent.putExtra(Intent.EXTRA_TEXT, R.string.AplicacioAndroidLlibres);
-                                whatsappIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
-                                whatsappIntent.setType("image/jpeg");
-                                whatsappIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                whatsappIntent.setPackage("com.whatsapp");
+                                final File sharedFile;
                                 try {
-                                    startActivity(whatsappIntent);
+                                    sharedFile = createFile();
+                                    //Pren la Uri del fitxer compartit
+                                    imageUri = Uri.parse("android.resource://" + getPackageName()
+                                            + "/drawable/" + "mybooks");
+                                    Intent whatsappIntent = new Intent();
+                                    whatsappIntent.setAction(Intent.ACTION_SEND);
 
-                                }catch (ActivityNotFoundException e){ //Mostra
-                                    Log.e(TAG,e.getMessage());
-                                    Toast.makeText(BookListActivity.this, getString(R.string.error_ws_isnot_installed), Toast.LENGTH_SHORT).show();
+                                    whatsappIntent.putExtra(Intent.EXTRA_TEXT, R.string.AplicacioAndroidLlibres);
+                                    whatsappIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
+                                    whatsappIntent.setType("image/jpeg");
+                                    whatsappIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                    whatsappIntent.setPackage("com.whatsapp");
+                                    try {
+                                        startActivity(whatsappIntent);
+
+                                    }catch (ActivityNotFoundException e){ //Mostra
+                                        Log.e(TAG,e.getMessage());
+                                        Toast.makeText(BookListActivity.this, getString(R.string.error_ws_isnot_installed), Toast.LENGTH_SHORT).show();
+                                    }
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
+
                                 break;
 
 
